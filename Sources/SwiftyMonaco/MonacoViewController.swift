@@ -49,11 +49,10 @@ public class MonacoViewController: ViewController, WKUIDelegate, WKNavigationDel
     }
     
     // MARK: - Dark Mode
-    private func updateTheme() {
+    private func updateTheme(for userInterfaceStyle: UIUserInterfaceStyle) {
+        let theme = detectTheme( for: userInterfaceStyle)
         evaluateJavascript("""
-        (function(){
-            monaco.editor.setTheme('\(detectTheme())')
-        })()
+            window.editor.setTheme('\(theme)');
         """)
     }
     
@@ -64,11 +63,14 @@ public class MonacoViewController: ViewController, WKUIDelegate, WKNavigationDel
     #else
     public override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
-        updateTheme()
+        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+            updateTheme( for: traitCollection.userInterfaceStyle)
+        }
+        
     }
     #endif
     
-    private func detectTheme() -> String {
+    private func detectTheme(for userInterfaceStyle: UIUserInterfaceStyle) -> String {
         #if os(macOS)
         if UserDefaults.standard.string(forKey: "AppleInterfaceStyle") == "Dark" {
             return "vs-dark"
@@ -76,7 +78,7 @@ public class MonacoViewController: ViewController, WKUIDelegate, WKNavigationDel
             return "vs"
         }
         #else
-        switch traitCollection.userInterfaceStyle {
+        switch userInterfaceStyle {
             case .light, .unspecified:
                 return "vs"
             case .dark:
@@ -100,7 +102,7 @@ public class MonacoViewController: ViewController, WKUIDelegate, WKNavigationDel
             \(syntax!.configuration)
         })());
         """ : ""
-        let syntaxJS2 = syntax != nil ? ", language: 'mySpecialLanguage'" : ""
+        let syntaxJS2 = syntax != nil ? "language: 'mySpecialLanguage'," : ""
         
         // Minimap
         let _minimap = self.delegate?.monacoView(getMinimap: self)
@@ -122,7 +124,7 @@ public class MonacoViewController: ViewController, WKUIDelegate, WKNavigationDel
         let _fontSize = self.delegate?.monacoView(getFontSize: self)
         let fontSize = "fontSize: \(_fontSize ?? 12)"
         
-        var theme = detectTheme()
+        var theme = detectTheme( for: traitCollection.userInterfaceStyle )
         
         if let _theme = self.delegate?.monacoView(getTheme: self) {
             switch _theme {
@@ -139,13 +141,25 @@ public class MonacoViewController: ViewController, WKUIDelegate, WKNavigationDel
         let b64 = text.data(using: .utf8)?.base64EncodedString()
         let javascript =
         """
-        (function() {
-        \(syntaxJS)
+        (() => {
+            \(syntaxJS)
 
-        editor.create({value: atob('\(b64 ?? "")'), automaticLayout: true, theme: "\(theme)"\(syntaxJS2), \(minimap), \(scrollbar), \(smoothCursor), \(cursorBlink), \(fontSize)});
-        var meta = document.createElement('meta'); meta.setAttribute('name', 'viewport'); meta.setAttribute('content', 'width=device-width'); document.getElementsByTagName('head')[0].appendChild(meta);
-        return true;
-        })();
+            editor.create({
+                value: atob('\(b64 ?? "")'),
+                automaticLayout: true,
+                theme: "\(theme)",
+                \(syntaxJS2)
+                \(minimap),
+                \(scrollbar),
+                \(smoothCursor),
+                \(cursorBlink),
+                \(fontSize)});
+            //let meta = document.createElement('meta');
+            //meta.setAttribute('name', 'viewport');
+            //meta.setAttribute('content', 'width=device-width');
+            //document.getElementsByTagName('head')[0].appendChild(meta);
+            
+            return true; })();
         """
         evaluateJavascript(javascript)
     }
@@ -163,7 +177,14 @@ public class MonacoViewController: ViewController, WKUIDelegate, WKNavigationDel
             alert.addButton(withTitle: "OK")
             alert.runModal()
             #else
-            let alert = UIAlertController(title: "Error", message: "Something went wrong while evaluating \(error.localizedDescription)", preferredStyle: .alert)
+        
+            var errorDescription = error.localizedDescription
+            if let err = error as NSError?, let desc = err.userInfo["WKJavaScriptExceptionMessage"] as? String {
+                errorDescription = desc
+            }
+            let alert = UIAlertController(title: "Error",
+                                          message: "Something went wrong while evaluating\n\(errorDescription)",
+                                          preferredStyle: .alert)
             alert.addAction(.init(title: "OK", style: .default, handler: nil))
             self.present(alert, animated: true, completion: nil)
             #endif
