@@ -1,6 +1,7 @@
 import * as monaco from 'monaco-editor';
 import './styles.css';
 
+
 (function() {
     class MonacoEditorHost {
         constructor() {
@@ -56,9 +57,14 @@ import './styles.css';
         updateOptions(options) {
             this.editor.updateOptions(options);
         }
+
+        setTheme( theme ) {
+            monaco.editor.setTheme(theme);
+        }
     }
 
     function main() {
+        
         window.editor = new MonacoEditorHost();
     }
 
