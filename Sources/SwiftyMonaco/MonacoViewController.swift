@@ -50,7 +50,7 @@ public class MonacoViewController: ViewController, WKUIDelegate, WKNavigationDel
     
     // MARK: - Dark Mode
     private func updateTheme(for userInterfaceStyle: UIUserInterfaceStyle) {
-        let theme = detectTheme( for: userInterfaceStyle)
+        let theme = detectTheme( for: userInterfaceStyle )
         evaluateJavascript("""
             window.editor.setTheme('\(theme)');
         """)
@@ -70,21 +70,24 @@ public class MonacoViewController: ViewController, WKUIDelegate, WKNavigationDel
     }
     #endif
     
-    private func detectTheme(for userInterfaceStyle: UIUserInterfaceStyle) -> String {
+    private func detectTheme(for userInterfaceStyle: UIUserInterfaceStyle ) -> String {
+        
+        let themeToApply = self.delegate?.monacoView(getTheme: self) ?? "vs"
+        
         #if os(macOS)
         if UserDefaults.standard.string(forKey: "AppleInterfaceStyle") == "Dark" {
-            return "vs-dark"
+            return "\(themeToApply)-dark"
         } else {
-            return "vs"
+            return themeToApply
         }
         #else
         switch userInterfaceStyle {
             case .light, .unspecified:
-                return "vs"
+                return themeToApply
             case .dark:
-                return "vs-dark"
+                return "\(themeToApply)-dark"
             @unknown default:
-                return "vs"
+                return themeToApply
         }
         #endif
     }
@@ -93,16 +96,19 @@ public class MonacoViewController: ViewController, WKUIDelegate, WKNavigationDel
     public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         // Syntax Highlighting
         let syntax = self.delegate?.monacoView(getSyntax: self)
-        let syntaxJS = syntax != nil ? """
-        // Register a new language
-        monaco.languages.register({ id: 'mySpecialLanguage' });
 
-        // Register a tokens provider for the language
-        monaco.languages.setMonarchTokensProvider('mySpecialLanguage', (function() {
-            \(syntax!.configuration)
-        })());
-        """ : ""
-        let syntaxJS2 = syntax != nil ? "language: 'mySpecialLanguage'," : ""
+        var syntaxJS = ""
+        var language:String?
+         
+        if let syntax {
+            syntaxJS = """
+            \(syntax.registrationJSCode)
+            
+            editor.addCommand( registerLanguage )
+            """
+            
+            language = "language: '\(syntax.title)',"
+        }
         
         // Minimap
         let _minimap = self.delegate?.monacoView(getMinimap: self)
@@ -124,17 +130,7 @@ public class MonacoViewController: ViewController, WKUIDelegate, WKNavigationDel
         let _fontSize = self.delegate?.monacoView(getFontSize: self)
         let fontSize = "fontSize: \(_fontSize ?? 12)"
         
-        var theme = detectTheme( for: traitCollection.userInterfaceStyle )
-        
-        if let _theme = self.delegate?.monacoView(getTheme: self) {
-            switch _theme {
-            case .light:
-                theme = "vs"
-            case .dark:
-                theme = "vs-dark"
-            }
-        }
-        
+        let theme = detectTheme( for: traitCollection.userInterfaceStyle )
         
         // Code itself
         let text = self.delegate?.monacoView(readText: self) ?? ""
@@ -148,7 +144,7 @@ public class MonacoViewController: ViewController, WKUIDelegate, WKNavigationDel
                 value: atob('\(b64 ?? "")'),
                 automaticLayout: true,
                 theme: "\(theme)",
-                \(syntaxJS2)
+                \(language ?? "")
                 \(minimap),
                 \(scrollbar),
                 \(smoothCursor),
@@ -225,12 +221,12 @@ private extension MonacoViewController {
 
 public protocol MonacoViewControllerDelegate {
     func monacoView(readText controller: MonacoViewController) -> String
-    func monacoView(getSyntax controller: MonacoViewController) -> SyntaxHighlight?
+    func monacoView(getSyntax controller: MonacoViewController) -> LanguageSupport?
     func monacoView(getMinimap controller: MonacoViewController) -> Bool
     func monacoView(getScrollbar controller: MonacoViewController) -> Bool
     func monacoView(getSmoothCursor controller: MonacoViewController) -> Bool
     func monacoView(getCursorBlink controller: MonacoViewController) -> CursorBlink
     func monacoView(getFontSize controller: MonacoViewController) -> Int
-    func monacoView(getTheme controller: MonacoViewController) -> Theme?
+    func monacoView(getTheme controller: MonacoViewController) -> String
     func monacoView(controller: MonacoViewController, textDidChange: String)
 }

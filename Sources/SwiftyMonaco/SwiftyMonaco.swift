@@ -7,6 +7,12 @@
 
 import SwiftUI
 
+
+public enum CursorBlink {
+    // cursorBlinking?: "blink" | "smooth" | "phase" | "expand" | "solid"
+    case blink, smooth, phase, expand, solid
+}
+
 #if os(macOS)
 typealias ViewControllerRepresentable = NSViewControllerRepresentable
 #else
@@ -16,13 +22,13 @@ typealias ViewControllerRepresentable = UIViewControllerRepresentable
 public struct SwiftyMonaco: ViewControllerRepresentable, MonacoViewControllerDelegate {
     
     var text: Binding<String>
-    private var syntax: SyntaxHighlight?
+    private var syntax: LanguageSupport?
     private var _minimap: Bool = true
     private var _scrollbar: Bool = true
     private var _smoothCursor: Bool = false
     private var _cursorBlink: CursorBlink = .blink
     private var _fontSize: Int = 12
-    private var _theme: Theme? = nil
+    private var _theme: String = "vs"
     
     public init(text: Binding<String>) {
         self.text = text
@@ -59,7 +65,7 @@ public struct SwiftyMonaco: ViewControllerRepresentable, MonacoViewControllerDel
         self.text.wrappedValue = text
     }
     
-    public func monacoView(getSyntax controller: MonacoViewController) -> SyntaxHighlight? {
+    public func monacoView(getSyntax controller: MonacoViewController) -> LanguageSupport? {
         return syntax
     }
     
@@ -83,14 +89,14 @@ public struct SwiftyMonaco: ViewControllerRepresentable, MonacoViewControllerDel
         return _fontSize
     }
     
-    public func monacoView(getTheme controller: MonacoViewController) -> Theme? {
+    public func monacoView(getTheme controller: MonacoViewController) -> String {
         return _theme
     }
 }
 
 // MARK: - Modifiers
 public extension SwiftyMonaco {
-    func syntaxHighlight(_ syntax: SyntaxHighlight) -> Self {
+    func language(_ syntax: LanguageSupport) -> Self {
         var m = self
         m.syntax = syntax
         return m
@@ -138,7 +144,7 @@ public extension SwiftyMonaco {
 }
 
 public extension SwiftyMonaco {
-    func theme(_ theme: Theme) -> Self {
+    func theme(_ theme: String) -> Self {
         var m = self
         m._theme = theme
         return m

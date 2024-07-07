@@ -13,9 +13,15 @@ struct ContentView: View {
     
     var body: some View {
         SwiftyMonaco(text: $text)
+            .language(.mermaid)
+            .theme("mermaid")
     }
 }
 
 #Preview {
-    ContentView(text: "test")
+    ContentView(text: 
+"""
+flowchart LR
+    Start --> Stop
+""")
 }
