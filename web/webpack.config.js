@@ -7,7 +7,7 @@ module.exports = {
     entry: './src/index.js',
     devtool: 'source-map',
     output: {
-        path: path.resolve(__dirname, '../Sources/SwiftyMonaco/Resources'),
+        path: path.resolve(__dirname, '../Sources/SwiftyMonaco/_Resources'),
         filename: 'app.js'
     },
     module: {
@@ -27,7 +27,9 @@ module.exports = {
     },
     plugins: [
         new CleanWebpackPlugin(),
-        new MonacoWebpackPlugin(),
+        new MonacoWebpackPlugin( {
+            globalAPI: true
+        }),
         new HtmlWebpackPlugin({
             title: 'Text Editor'
         })
