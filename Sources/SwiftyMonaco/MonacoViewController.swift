@@ -149,6 +149,7 @@ public class MonacoViewController: ViewController, WKUIDelegate, WKNavigationDel
                 automaticLayout: true,
                 theme: "\(theme)",
                 \(syntaxJS2)
+                language: 'mermaid',
                 \(minimap),
                 \(scrollbar),
                 \(smoothCursor),

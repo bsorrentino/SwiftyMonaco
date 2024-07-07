@@ -1,4 +1,5 @@
 import * as monaco from 'monaco-editor';
+import mermaid from './mermaid';
 import './styles.css';
 
 
@@ -19,7 +20,10 @@ import './styles.css';
                 var text = this.editor.getValue();
                 window.webkit.messageHandlers.updateText.postMessage(btoa(text));
             });
+            
+            mermaid( monaco )
         }
+        
 
         addAction(fn) {
             fn(monaco, this.editor);
@@ -61,6 +65,7 @@ import './styles.css';
         setTheme( theme ) {
             monaco.editor.setTheme(theme);
         }
+        
     }
 
     function main() {
