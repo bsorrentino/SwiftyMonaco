@@ -1,5 +1,5 @@
 import * as monaco from 'monaco-editor';
-import mermaid from './mermaid';
+// import mermaid from './mermaid';
 import './styles.css';
 
 
@@ -21,7 +21,7 @@ import './styles.css';
                 window.webkit.messageHandlers.updateText.postMessage(btoa(text));
             });
             
-            mermaid( monaco )
+            // mermaid( monaco )
         }
         
 
