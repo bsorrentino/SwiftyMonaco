@@ -13,7 +13,8 @@ struct EditorView: View {
     @State var text: String
     
     var body: some View {
-        SwiftyMonaco(text: $text)
+        SwiftyMonaco(text: $text, 
+                     options: SwiftyMonaco.Options() )
     }
 }
 ```

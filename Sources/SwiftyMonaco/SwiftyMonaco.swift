@@ -23,9 +23,9 @@ public struct SwiftyMonaco: ViewControllerRepresentable {
     
     public struct Options {
         var syntax: LanguageSupport?
-        var minimap: Bool = true
-        var scrollbar: Bool = true
-        var smoothCursor: Bool = false
+        var minimap: Bool
+        var scrollbar: Bool
+        var smoothCursor: Bool
         var cursorBlink: CursorBlink
         var fontSize: Int
         var theme: String
