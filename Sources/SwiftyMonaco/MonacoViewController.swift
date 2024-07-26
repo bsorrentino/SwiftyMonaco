@@ -17,9 +17,40 @@ import WebKit
 public class MonacoViewController: ViewController, WKUIDelegate, WKNavigationDelegate {
     
     var delegate: MonacoViewControllerDelegate?
-    
     var webView: WKWebView!
+    var options: SwiftyMonaco.Options
+
+    init( options: SwiftyMonaco.Options ) {
+        self.options = options
+        super.init(nibName: nil, bundle: nil)
+    }
     
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func updateOptions( options newOptions: SwiftyMonaco.Options  ) {
+        
+        var result: [String: Any] = [:]
+
+        if newOptions.fontSize != options.fontSize {
+            result["fontSize"] = newOptions.fontSize
+            options.fontSize = newOptions.fontSize
+        }
+
+        if !result.isEmpty {
+            do {
+                let jsonData = try JSONSerialization.data(withJSONObject: result)
+                
+                if let jsonOptions = String(data: jsonData, encoding: .utf8) {
+                    evaluateJavascript( "editor.updateOptions( \(jsonOptions) );")
+                }
+            }
+            catch {
+                print( "ERROR converting options in jason data: \(error)")
+            }
+        }
+    }
     public override func loadView() {
         let webConfiguration = WKWebViewConfiguration()
         webConfiguration.userContentController.add(UpdateTextScriptHandler(self), name: "updateText")
@@ -72,7 +103,7 @@ public class MonacoViewController: ViewController, WKUIDelegate, WKNavigationDel
     
     private func detectTheme(for userInterfaceStyle: UIUserInterfaceStyle ) -> String {
         
-        let themeToApply = self.delegate?.monacoView(getTheme: self) ?? "vs"
+        let themeToApply = options.theme
         
         #if os(macOS)
         if UserDefaults.standard.string(forKey: "AppleInterfaceStyle") == "Dark" {
@@ -95,7 +126,7 @@ public class MonacoViewController: ViewController, WKUIDelegate, WKNavigationDel
     // MARK: - WKWebView
     public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         // Syntax Highlighting
-        let syntax = self.delegate?.monacoView(getSyntax: self)
+        let syntax = options.syntax
 
         var syntaxJS = ""
         var language:String?
@@ -111,24 +142,24 @@ public class MonacoViewController: ViewController, WKUIDelegate, WKNavigationDel
         }
         
         // Minimap
-        let _minimap = self.delegate?.monacoView(getMinimap: self)
-        let minimap = "minimap: { enabled: \(_minimap ?? true) }"
+        let _minimap = options.minimap
+        let minimap = "minimap: { enabled: \(_minimap) }"
         
         // Scrollbar
-        let _scrollbar = self.delegate?.monacoView(getScrollbar: self)
-        let scrollbar = "scrollbar: { vertical: \(_scrollbar ?? true ? "\"visible\"" : "\"hidden\"") }"
+        let _scrollbar = options.scrollbar
+        let scrollbar = "scrollbar: { vertical: \(_scrollbar ? "\"visible\"" : "\"hidden\"") }"
         
         // Smooth Cursor
-        let _smoothCursor = self.delegate?.monacoView(getSmoothCursor: self)
-        let smoothCursor = "cursorSmoothCaretAnimation: \(_smoothCursor ?? false)"
+        let _smoothCursor = options.smoothCursor
+        let smoothCursor = "cursorSmoothCaretAnimation: \(_smoothCursor)"
         
         // Cursor Blinking
-        let _cursorBlink = self.delegate?.monacoView(getCursorBlink: self)
-        let cursorBlink = "cursorBlinking: \"\(_cursorBlink ?? .blink)\""
+        let _cursorBlink = options.cursorBlink
+        let cursorBlink = "cursorBlinking: \"\(_cursorBlink)\""
         
         // Font size
-        let _fontSize = self.delegate?.monacoView(getFontSize: self)
-        let fontSize = "fontSize: \(_fontSize ?? 12)"
+        let _fontSize = options.fontSize
+        let fontSize = "fontSize: \(_fontSize)"
         
         let theme = detectTheme( for: traitCollection.userInterfaceStyle )
         
@@ -221,12 +252,5 @@ private extension MonacoViewController {
 
 public protocol MonacoViewControllerDelegate {
     func monacoView(readText controller: MonacoViewController) -> String
-    func monacoView(getSyntax controller: MonacoViewController) -> LanguageSupport?
-    func monacoView(getMinimap controller: MonacoViewController) -> Bool
-    func monacoView(getScrollbar controller: MonacoViewController) -> Bool
-    func monacoView(getSmoothCursor controller: MonacoViewController) -> Bool
-    func monacoView(getCursorBlink controller: MonacoViewController) -> CursorBlink
-    func monacoView(getFontSize controller: MonacoViewController) -> Int
-    func monacoView(getTheme controller: MonacoViewController) -> String
     func monacoView(controller: MonacoViewController, textDidChange: String)
 }

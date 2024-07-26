@@ -19,19 +19,43 @@ typealias ViewControllerRepresentable = NSViewControllerRepresentable
 typealias ViewControllerRepresentable = UIViewControllerRepresentable
 #endif
 
-public struct SwiftyMonaco: ViewControllerRepresentable, MonacoViewControllerDelegate {
+public struct SwiftyMonaco: ViewControllerRepresentable {
+    
+    public struct Options {
+        var syntax: LanguageSupport?
+        var minimap: Bool = true
+        var scrollbar: Bool = true
+        var smoothCursor: Bool = false
+        var cursorBlink: CursorBlink
+        var fontSize: Int
+        var theme: String
+        
+        public init(
+            syntax: LanguageSupport? = nil,
+            minimap: Bool = true,
+            scrollbar: Bool = true,
+            smoothCursor: Bool = false,
+            cursorBlink: CursorBlink = .blink,
+            fontSize: Int = 15,
+            theme: String = "vs"
+        ) {
+            self.syntax = syntax
+            self.minimap = minimap
+            self.scrollbar = scrollbar
+            self.smoothCursor = smoothCursor
+            self.cursorBlink = cursorBlink
+            self.fontSize = fontSize
+            self.theme = theme
+        }
+    }
     
     var text: Binding<String>
-    private var syntax: LanguageSupport?
-    private var _minimap: Bool = true
-    private var _scrollbar: Bool = true
-    private var _smoothCursor: Bool = false
-    private var _cursorBlink: CursorBlink = .blink
-    private var _fontSize: Int = 12
-    private var _theme: String = "vs"
+    var options: Options
     
-    public init(text: Binding<String>) {
+    public init(text: Binding<String>, options: Options )
+    {
         self.text = text
+        self.options = options
     }
     
     #if os(macOS)
@@ -47,106 +71,36 @@ public struct SwiftyMonaco: ViewControllerRepresentable, MonacoViewControllerDel
     
     #if os(iOS)
     public func makeUIViewController(context: Context) -> MonacoViewController {
-        let vc = MonacoViewController()
-        vc.delegate = self
+        let vc = MonacoViewController( options: options )
+        vc.delegate = context.coordinator
         return vc
     }
     
     public func updateUIViewController(_ uiViewController: MonacoViewController, context: Context) {
         
+        uiViewController.updateOptions( options: options )
+    }
+    
+    public func makeCoordinator() -> Coordinator {
+        Coordinator(owner: self)
     }
     #endif
     
-    public func monacoView(readText controller: MonacoViewController) -> String {
-        return self.text.wrappedValue
-    }
     
-    public func monacoView(controller: MonacoViewController, textDidChange text: String) {
-        self.text.wrappedValue = text
-    }
-    
-    public func monacoView(getSyntax controller: MonacoViewController) -> LanguageSupport? {
-        return syntax
-    }
-    
-    public func monacoView(getMinimap controller: MonacoViewController) -> Bool {
-        return _minimap
-    }
-    
-    public func monacoView(getScrollbar controller: MonacoViewController) -> Bool {
-        return _scrollbar
-    }
-    
-    public func monacoView(getSmoothCursor controller: MonacoViewController) -> Bool {
-        return _smoothCursor
-    }
-    
-    public func monacoView(getCursorBlink controller: MonacoViewController) -> CursorBlink {
-        return _cursorBlink
-    }
-    
-    public func monacoView(getFontSize controller: MonacoViewController) -> Int {
-        return _fontSize
-    }
-    
-    public func monacoView(getTheme controller: MonacoViewController) -> String {
-        return _theme
-    }
-}
-
-// MARK: - Modifiers
-public extension SwiftyMonaco {
-    func language(_ syntax: LanguageSupport) -> Self {
-        var m = self
-        m.syntax = syntax
-        return m
-    }
-}
-
-public extension SwiftyMonaco {
-    func minimap(_ enabled: Bool) -> Self {
-        var m = self
-        m._minimap = enabled
-        return m
-    }
-}
-
-public extension SwiftyMonaco {
-    func scrollbar(_ enabled: Bool) -> Self {
-        var m = self
-        m._scrollbar = enabled
-        return m
-    }
-}
-
-public extension SwiftyMonaco {
-    func smoothCursor(_ enabled: Bool) -> Self {
-        var m = self
-        m._smoothCursor = enabled
-        return m
-    }
-}
-
-public extension SwiftyMonaco {
-    func cursorBlink(_ style: CursorBlink) -> Self {
-        var m = self
-        m._cursorBlink = style
-        return m
-    }
-}
-
-public extension SwiftyMonaco {
-    func fontSize(_ size: Int) -> Self {
-        var m = self
-        m._fontSize = size
-        return m
-    }
-}
-
-public extension SwiftyMonaco {
-    func theme(_ theme: String) -> Self {
-        var m = self
-        m._theme = theme
-        return m
+    public class Coordinator : MonacoViewControllerDelegate {
+        
+        var owner: SwiftyMonaco
+        
+        init( owner: SwiftyMonaco ) {
+            self.owner = owner
+        }
+                
+        public func monacoView(readText controller: MonacoViewController) -> String {
+            return owner.text.wrappedValue
+        }
+        
+        public func monacoView(controller: MonacoViewController, textDidChange text: String) {
+            owner.text.wrappedValue = text
+        }
     }
 }

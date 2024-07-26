@@ -10,11 +10,41 @@ import SwiftyMonaco
 
 struct ContentView: View {
     @State var text: String = ""
+    @State var fontSize:Int = 20
+    
+    var options:SwiftyMonaco.Options {
+        SwiftyMonaco.Options(
+            syntax: .mermaid,
+            fontSize: fontSize,
+            theme: "mermaid" )
+    }
     
     var body: some View {
-        SwiftyMonaco(text: $text)
-            .language(.mermaid)
-            .theme("mermaid")
+        NavigationStack {
+            VStack {
+                Divider()
+                
+                Divider()
+                SwiftyMonaco(text: $text,
+                             options: options )
+                Divider()
+                Text( text )
+            }
+            .toolbar{
+                ToolbarItemGroup(placement: .topBarLeading) {
+                    Button {
+                        fontSize += 1
+                    } label: {
+                        Text("font +")
+                    }
+                    Button {
+                        fontSize -= 1
+                    } label: {
+                        Text("font -")
+                    }
+                }
+            }
+        }
     }
 }
 
