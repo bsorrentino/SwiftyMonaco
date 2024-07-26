@@ -12,22 +12,38 @@ struct ContentView: View {
     @State var text: String = ""
     @State var fontSize:Int = 20
     
+    var options:SwiftyMonaco.Options {
+        SwiftyMonaco.Options(
+            syntax: .mermaid,
+            fontSize: fontSize,
+            theme: "mermaid" )
+    }
+    
     var body: some View {
-        VStack {
-            Divider()
-            Button {
-                fontSize += 1
-            } label: {
-                Text("font")
+        NavigationStack {
+            VStack {
+                Divider()
+                
+                Divider()
+                SwiftyMonaco(text: $text,
+                             options: options )
+                Divider()
+                Text( text )
             }
-            Divider()
-            SwiftyMonaco(text: $text,
-                         options: SwiftyMonaco.Options(syntax: .mermaid,
-                                                       fontSize: fontSize,
-                                                       theme: "mermaid" )
-                        )
-            Divider()
-            Text( text )
+            .toolbar{
+                ToolbarItemGroup(placement: .topBarLeading) {
+                    Button {
+                        fontSize += 1
+                    } label: {
+                        Text("font +")
+                    }
+                    Button {
+                        fontSize -= 1
+                    } label: {
+                        Text("font -")
+                    }
+                }
+            }
         }
     }
 }

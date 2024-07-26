@@ -24,14 +24,41 @@ struct EditorView: View {
 ## Language Support
 Also you can use `SwiftyMonaco` adding support for new languages using `LanguageSupport` class:
 ```swift
-import SwiftUI
 
-struct EditorView: View {
-    @State var text: String
+struct ContentView: View {
+    @State var text: String = 
+        """
+        flowchart LR
+            Start --> Stop
+        """
+    @State var fontSize:Int = 20
+    
+    var options:SwiftyMonaco.Options {
+        SwiftyMonaco.Options(
+            syntax: .mermaid,
+            fontSize: fontSize,
+            theme: "mermaid" )
+    }
     
     var body: some View {
-        SwiftyMonaco(text: $text)
-            .language(.mermaid)
+        NavigationStack {
+            SwiftyMonaco(text: $text,
+                         options: options )
+        }
+        .toolbar {
+            ToolbarItemGroup(placement: .topBarLeading) {
+                Button {
+                    fontSize += 1
+                } label: {
+                    Text("font +")
+                }
+                Button {
+                    fontSize -= 1
+                } label: {
+                    Text("font -")
+                }
+            }
+        }
     }
 }
 ```
