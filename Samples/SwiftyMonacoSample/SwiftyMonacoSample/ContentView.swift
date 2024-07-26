@@ -10,11 +10,25 @@ import SwiftyMonaco
 
 struct ContentView: View {
     @State var text: String = ""
+    @State var fontSize:Int = 20
     
     var body: some View {
-        SwiftyMonaco(text: $text)
-            .language(.mermaid)
-            .theme("mermaid")
+        VStack {
+            Divider()
+            Button {
+                fontSize += 1
+            } label: {
+                Text("font")
+            }
+            Divider()
+            SwiftyMonaco(text: $text,
+                         options: SwiftyMonaco.Options(syntax: .mermaid,
+                                                       fontSize: fontSize,
+                                                       theme: "mermaid" )
+                        )
+            Divider()
+            Text( text )
+        }
     }
 }
 

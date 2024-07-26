@@ -7,7 +7,12 @@
 
 import Foundation
 
-public struct LanguageSupport {
+public struct LanguageSupport : Equatable {
+    
+    public static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.title == rhs.title
+    }
+    
     public init(title: String, registrationJSCode: String) {
         self.title = title
         self.registrationJSCode = registrationJSCode
