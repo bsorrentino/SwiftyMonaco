@@ -27,36 +27,35 @@ Also you can use `SwiftyMonaco` adding support for new languages using `Language
 ```swift
 
 struct ContentView: View {
-    @State var text: String = 
-        """
-        flowchart LR
-            Start --> Stop
-        """
+    @State var text: String = ""
     @State var fontSize:Int = 20
-    
+    @State var lineNumbers:Bool = true
+
     var options:SwiftyMonaco.Options {
         SwiftyMonaco.Options(
             syntax: .mermaid,
+            scrollbar: false,
             fontSize: fontSize,
-            theme: "mermaid" )
+            theme: "mermaid",
+            lineNumbers: lineNumbers)
     }
     
     var body: some View {
         NavigationStack {
-            SwiftyMonaco(text: $text,
-                         options: options )
-        }
-        .toolbar {
-            ToolbarItemGroup(placement: .topBarLeading) {
-                Button {
-                    fontSize += 1
-                } label: {
-                    Text("font +")
-                }
-                Button {
-                    fontSize -= 1
-                } label: {
-                    Text("font -")
+            VStack {
+                SwiftyMonaco(text: $text, options: options )
+            }
+            .toolbar{
+                ToolbarItemGroup(placement: .topBarLeading) {
+                    Button { fontSize += 1 } label: {
+                        Text("font +")
+                    }
+                    Button { fontSize -= 1 } label: {
+                        Text("font -")
+                    }
+                    Button { lineNumbers.toggle() } label: {
+                        Text("line numbers")
+                    }
                 }
             }
         }
