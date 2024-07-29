@@ -8,7 +8,28 @@
 
 
 
+
+
+
+
+
+<!-- "name: v2.2.0" is a release tag -->
+
+## [v2.2.0](https://github.com/bsorrentino/SwiftyMonaco/releases/tag/v2.2.0) (2024-07-29)
+
+### Features
+
+ *  add support for toggle line numbers ([30d707df41e5c23](https://github.com/bsorrentino/SwiftyMonaco/commit/30d707df41e5c235aab41c54a71306dddd66c361))
+   
+
+
 ### Documentation
+
+ -  update readme ([704f27aa29757cb](https://github.com/bsorrentino/SwiftyMonaco/commit/704f27aa29757cbecfb53de7f5895e1ddbbe2cb7))
+
+ -  update changelog ([29e1962e70c9682](https://github.com/bsorrentino/SwiftyMonaco/commit/29e1962e70c9682d4b3eb361b09f0ca9f97b1e85))
+
+ -  update changelog ([3996f930c8e451f](https://github.com/bsorrentino/SwiftyMonaco/commit/3996f930c8e451f30d4e92cd49e678c9b162ad54))
 
  -  update readme ([53d8484fb69971e](https://github.com/bsorrentino/SwiftyMonaco/commit/53d8484fb69971e3476aa634ff571f0dc5a69603))
 
