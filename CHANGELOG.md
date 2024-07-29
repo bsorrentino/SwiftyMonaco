@@ -2,6 +2,27 @@
 
 
 
+<!-- "name: Unreleased" is a release tag -->
+
+## [Unreleased](https://github.com/bsorrentino/SwiftyMonaco/releases/tag/Unreleased) ()
+
+
+
+### Documentation
+
+ -  update readme ([53d8484fb69971e](https://github.com/bsorrentino/SwiftyMonaco/commit/53d8484fb69971e3476aa634ff571f0dc5a69603))
+
+ -  update changelog ([26265ec90d5c126](https://github.com/bsorrentino/SwiftyMonaco/commit/26265ec90d5c126f1d8144c2f6dff6152289f2fb))
+
+
+### Refactor
+
+ -  remove default values on option decl ([0f210d38bb1d068](https://github.com/bsorrentino/SwiftyMonaco/commit/0f210d38bb1d068dc296985503c51cb717a89e15))
+   
+
+
+
+
 <!-- "name: v2.1.0" is a release tag -->
 
 ## [v2.1.0](https://github.com/bsorrentino/SwiftyMonaco/releases/tag/v2.1.0) (2024-07-26)
@@ -22,9 +43,6 @@
  -  remove mutating modifier. replace with a immutable Options struct ([a966487334cfe62](https://github.com/bsorrentino/SwiftyMonaco/commit/a966487334cfe6235ca8aa8c4cf64a5fc3856e32))
    
 
-
-#### Other Changes
-* new release\\
 
 
 
@@ -61,8 +79,6 @@
  -  update monaco dist ([126581e3de8e23d](https://github.com/bsorrentino/SwiftyMonaco/commit/126581e3de8e23d314ead3e05f70c3ac93202543))
    
 
-#### Other Changes
-
 
 
 <!-- "name: v0.1.2" is a release tag -->
@@ -73,11 +89,6 @@
 
 
 
-
-#### Other Changes
-* Add theme modifier
-* Dev
-* Added many more modifiers
 
 
 
@@ -90,12 +101,6 @@
 
 
 
-#### Other Changes
-* Merge to the stable main branch
-* Fix #1, #2
-* Fix dark mode detection #2
-* Syntax Highlighting #1
-
 
 
 <!-- "name: v0.1.0" is a release tag -->
@@ -106,6 +111,4 @@
 
 
 
-
-#### Other Changes
 
