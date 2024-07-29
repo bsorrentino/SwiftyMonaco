@@ -11,12 +11,15 @@ import SwiftyMonaco
 struct ContentView: View {
     @State var text: String = ""
     @State var fontSize:Int = 20
-    
+    @State var lineNumbers:Bool = true
+
     var options:SwiftyMonaco.Options {
         SwiftyMonaco.Options(
             syntax: .mermaid,
+            scrollbar: false,
             fontSize: fontSize,
-            theme: "mermaid" )
+            theme: "mermaid",
+            lineNumbers: lineNumbers)
     }
     
     var body: some View {
@@ -32,15 +35,14 @@ struct ContentView: View {
             }
             .toolbar{
                 ToolbarItemGroup(placement: .topBarLeading) {
-                    Button {
-                        fontSize += 1
-                    } label: {
+                    Button { fontSize += 1 } label: {
                         Text("font +")
                     }
-                    Button {
-                        fontSize -= 1
-                    } label: {
+                    Button { fontSize -= 1 } label: {
                         Text("font -")
+                    }
+                    Button { lineNumbers.toggle() } label: {
+                        Text("line numbers")
                     }
                 }
             }

@@ -19,16 +19,35 @@ typealias ViewControllerRepresentable = NSViewControllerRepresentable
 typealias ViewControllerRepresentable = UIViewControllerRepresentable
 #endif
 
+
 public struct SwiftyMonaco: ViewControllerRepresentable {
     
+    struct OptionValue<T : Equatable> : Equatable {
+        static func == (lhs: SwiftyMonaco.OptionValue<T>, rhs: SwiftyMonaco.OptionValue<T>) -> Bool {
+            lhs.value == rhs.value
+        }
+        
+        var value: T
+        private var _jsValue:((T) -> String)
+        
+        var jsValue:String {
+            _jsValue( value )
+        }
+        
+        init( _ value: T, jsValue: @escaping ((T) -> String)) {
+            self.value = value
+            self._jsValue = jsValue
+        }
+    }
     public struct Options {
         var syntax: LanguageSupport?
         var minimap: Bool
-        var scrollbar: Bool
+        var scrollbar: OptionValue<Bool>
         var smoothCursor: Bool
         var cursorBlink: CursorBlink
         var fontSize: Int
         var theme: String
+        var lineNumbers: OptionValue<Bool>
         
         public init(
             syntax: LanguageSupport? = nil,
@@ -37,15 +56,21 @@ public struct SwiftyMonaco: ViewControllerRepresentable {
             smoothCursor: Bool = false,
             cursorBlink: CursorBlink = .blink,
             fontSize: Int = 15,
-            theme: String = "vs"
+            theme: String = "vs",
+            lineNumbers: Bool
         ) {
             self.syntax = syntax
             self.minimap = minimap
-            self.scrollbar = scrollbar
+            self.scrollbar = OptionValue<Bool>( scrollbar, jsValue: {
+                $0 ? "visible" : "hidden"
+            })
             self.smoothCursor = smoothCursor
             self.cursorBlink = cursorBlink
             self.fontSize = fontSize
             self.theme = theme
+            self.lineNumbers = OptionValue<Bool>( lineNumbers, jsValue: {
+                $0 ? "on" : "off"
+            })
         }
     }
     
