@@ -57,7 +57,7 @@ public struct SwiftyMonaco: ViewControllerRepresentable {
             cursorBlink: CursorBlink = .blink,
             fontSize: Int = 15,
             theme: String = "vs",
-            lineNumbers: Bool
+            lineNumbers: Bool = true
         ) {
             self.syntax = syntax
             self.minimap = minimap
