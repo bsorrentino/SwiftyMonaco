@@ -66,6 +66,11 @@ import './styles.css';
             monaco.editor.setTheme(theme);
         }
         
+        selectAll() {
+            // https://github.com/microsoft/monaco-editor/issues/2010#issuecomment-649021437
+            const range = this.editor.getModel().getFullModelRange();
+            this.editor.setSelection(range);
+        }
     }
 
     function main() {
