@@ -4,11 +4,19 @@
 
 <!-- "name: v2.3.0" is a release tag -->
 
-## [v2.3.0](https://github.com/bsorrentino/SwiftyMonaco/releases/tag/v2.3.0) (2024-07-29)
+## [v2.3.0](https://github.com/bsorrentino/SwiftyMonaco/releases/tag/v2.3.0) (2024-08-13)
 
+### Features
+
+ *  add selectAll support ([0b949f8d323d237](https://github.com/bsorrentino/SwiftyMonaco/commit/0b949f8d323d2377d58699ae5e8d5b96131e09a5))
+     > - add keyboard accessory view
+     > solve bsorrentino/Mermaid4iPad#1
+   
 
 
 ### Documentation
+
+ -  update changeme ([af5221a63c233dc](https://github.com/bsorrentino/SwiftyMonaco/commit/af5221a63c233dc811deaadaa6c2ffb60010da41))
 
  -  update changelog ([a08e4e36bedfe80](https://github.com/bsorrentino/SwiftyMonaco/commit/a08e4e36bedfe80ae182e03da5b9d88aba4dbe6f))
 
@@ -18,6 +26,12 @@
  -  make lineNumbers = true by default ([45c31391c8ba52b](https://github.com/bsorrentino/SwiftyMonaco/commit/45c31391c8ba52b5058e29cdcb7fa5ae6eb438cd))
    
 
+### ALM 
+
+ -  add swift-tools-version: 5.10 ([f1edf2acfd9ffb9](https://github.com/bsorrentino/SwiftyMonaco/commit/f1edf2acfd9ffb9f0fe283435fb8b5e32dd790a8))
+   
+ -  add changelog utility shell ([7380d103d922c6f](https://github.com/bsorrentino/SwiftyMonaco/commit/7380d103d922c6f4eb3fbfd63d1161c2f10e7cd4))
+   
 
 
 
