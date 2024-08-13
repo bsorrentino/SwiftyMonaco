@@ -2,13 +2,21 @@
 
 
 
-<!-- "name: Unreleased" is a release tag -->
+<!-- "name: v2.3.0" is a release tag -->
 
-## [Unreleased](https://github.com/bsorrentino/SwiftyMonaco/releases/tag/Unreleased) ()
-
-
+## [v2.3.0](https://github.com/bsorrentino/SwiftyMonaco/releases/tag/v2.3.0) (2024-07-29)
 
 
+
+### Documentation
+
+ -  update changelog ([a08e4e36bedfe80](https://github.com/bsorrentino/SwiftyMonaco/commit/a08e4e36bedfe80ae182e03da5b9d88aba4dbe6f))
+
+
+### Refactor
+
+ -  make lineNumbers = true by default ([45c31391c8ba52b](https://github.com/bsorrentino/SwiftyMonaco/commit/45c31391c8ba52b5058e29cdcb7fa5ae6eb438cd))
+   
 
 
 
