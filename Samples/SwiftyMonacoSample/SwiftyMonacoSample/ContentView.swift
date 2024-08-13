@@ -34,6 +34,7 @@ struct ContentView: View {
                 Text( text )
             }
             .toolbar{
+                
                 ToolbarItemGroup(placement: .topBarLeading) {
                     Button { fontSize += 1 } label: {
                         Text("font +")
