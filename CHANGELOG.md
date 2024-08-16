@@ -2,6 +2,31 @@
 
 
 
+<!-- "name: v2.4.0" is a release tag -->
+
+## [v2.4.0](https://github.com/bsorrentino/SwiftyMonaco/releases/tag/v2.4.0) (2024-08-16)
+
+### Features
+
+ *  refine monaco options ([d62a9e0459f5f5c](https://github.com/bsorrentino/SwiftyMonaco/commit/d62a9e0459f5f5c4ae18eb90992ac08acbcefd9c))
+     > contextmenu: false,
+     > dragAndDrop: false,
+     > glyphMargin: false,
+     > automaticLayout: true,
+     > folding: false,
+     > showFoldingControls: &quot;never&quot;
+   
+
+
+### Documentation
+
+ -  update changeme ([443a0891f5aee19](https://github.com/bsorrentino/SwiftyMonaco/commit/443a0891f5aee196dd1af387e615e5120185bb51))
+
+
+
+
+
+
 <!-- "name: v2.3.0" is a release tag -->
 
 ## [v2.3.0](https://github.com/bsorrentino/SwiftyMonaco/releases/tag/v2.3.0) (2024-08-13)
