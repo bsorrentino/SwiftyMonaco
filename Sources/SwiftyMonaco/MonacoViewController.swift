@@ -67,6 +67,10 @@ class MonacoWebView : WKWebView {
     
     override init(frame: CGRect,configuration : WKWebViewConfiguration) {
         super.init(frame: frame, configuration:configuration)
+//        if #available(iOS 16.4, *) {
+//            self.isInspectable = true // for debug purpose
+//        }
+        
         #if os(iOS)
         self.backgroundColor = .none
         #else
@@ -154,16 +158,69 @@ class MonacoWebView : WKWebView {
             
             return true; })();
         """
-        evaluateJavascript(javascript)
+        evaluateJS(javascript)
 
         // evaluate enqueud javascripts
         while( !executionQueue.isEmpty ) {
-            evaluateJavascript(executionQueue.pop()!)
+            evaluateJS(executionQueue.pop()!)
         }
     }
     
+    private func presentError( _ error : Error  ) {
+        var errorDescription = error.localizedDescription
+        
+        #if os(macOS)
+        let alert = NSAlert()
+        alert.messageText = "Error"
+        alert.informativeText = "Something went wrong while evaluating javascript\(errorDescription): \(javascript)"
+        alert.alertStyle = .critical
+        alert.addButton(withTitle: "OK")
+        alert.runModal()
+        #else
+        if let err = error as NSError?, let desc = err.userInfo["WKJavaScriptExceptionMessage"] as? String {
+          errorDescription = desc
+        }
 
-    private func evaluateJavascript(_ javascript: String ) {
+        log.error( "Something went wrong while evaluating javascript\n\(errorDescription)" )
+
+        guard let controller = self.findViewController() else {
+            return
+        }
+        
+        let alert = UIAlertController(title: "Error",
+                              message: "Something went wrong while evaluating javascript\n\(errorDescription)",
+                              preferredStyle: .alert)
+        alert.addAction(.init(title: "OK", style: .default, handler: nil))
+        controller.present(alert, animated: true, completion: nil)
+        #endif
+
+    }
+    
+    private func evaluateJS<T>(_ javascript: String, _ processResult: @escaping (( T ) throws -> Void) )  {
+
+        self.evaluateJavaScript(javascript, in: nil, in: WKContentWorld.page) { result in
+            switch result {
+            case .failure(let error):
+                self.presentError( error )
+                break
+              case .success(let result):
+                do {
+                    guard let res = result as? T else {
+                        throw MonacoErrors.typeMistatch("Unexpected evaluation result")
+                    }
+
+                    try processResult(res)
+                }
+                catch {
+                    self.presentError( error )
+                }
+                break
+              }
+        }
+
+    }
+    
+    private func evaluateJS(_ javascript: String )  {
         
         guard !self.isLoading  else {
             executionQueue.push( javascript )
@@ -171,36 +228,13 @@ class MonacoWebView : WKWebView {
         }
 
         self.evaluateJavaScript(javascript, in: nil, in: WKContentWorld.page) { result in
-        switch result {
-        case .failure(let error):
-            var errorDescription = error.localizedDescription
-            #if os(macOS)
-            let alert = NSAlert()
-            alert.messageText = "Error"
-            alert.informativeText = "Something went wrong while evaluating javascript\(errorDescription): \(javascript)"
-            alert.alertStyle = .critical
-            alert.addButton(withTitle: "OK")
-            alert.runModal()
-            #else
-            if let err = error as NSError?, let desc = err.userInfo["WKJavaScriptExceptionMessage"] as? String {
-              errorDescription = desc
-            }
-
-            log.error( "Something went wrong while evaluating javascript\n\(errorDescription)" )
-
-            guard let controller = self.findViewController() else {
-                return
-            }
-            let alert = UIAlertController(title: "Error",
-                                          message: "Something went wrong while evaluating javascript\n\(errorDescription)",
-                                          preferredStyle: .alert)
-            alert.addAction(.init(title: "OK", style: .default, handler: nil))
-            controller.present(alert, animated: true, completion: nil)
-            #endif
-            break
-          case .success(_):
-            break
-          }
+            switch result {
+            case .failure(let error):
+                self.presentError( error )
+                break
+              case .success(_):
+                break
+              }
         }
     }
 
@@ -234,15 +268,23 @@ class MonacoWebView : WKWebView {
 
 extension MonacoWebView { // methods
     
-    @objc func monacoSelectAll(_ sender: UIButton?) {
-        self.evaluateJavascript("window.editor.selectAll();")
+    enum MonacoErrors: Error {
+        case typeMistatch(String)
     }
-    
+    @objc func monacoSelectAll(_ sender: UIButton?) {
+        self.evaluateJS("window.editor.selectAll();")
+    }
     func setTheme( _ theme: String ) {
-        evaluateJavascript("""
-            window.editor.setTheme('\(theme)');
-        """)
-
+        evaluateJS("window.editor.setTheme('\(theme)');")
+    }
+    func hasTextFocus( _ processResult: @escaping ( Bool ) -> Void ) {
+        evaluateJS( "window.editor.hasTextFocus();", processResult )
+    }
+    func hasFocus( _ processResult: @escaping ( Bool ) -> Void ) {
+        evaluateJS( "window.editor.hasFocus();", processResult )
+    }
+    func focus() {
+        self.evaluateJS("window.editor.focus();")
     }
    
     private func detectTheme( for userInterfaceStyle: UIUserInterfaceStyle, defaultTheme: String ) -> String {
@@ -278,7 +320,7 @@ extension MonacoWebView { // methods
             
             if let jsonOptions = String(data: jsonData, encoding: .utf8) {
                 let js = "editor.updateOptions( \(jsonOptions) );"
-                evaluateJavascript( js )
+                evaluateJS( js )
             }
         }
         catch {
@@ -294,7 +336,8 @@ extension MonacoWebView { // methods
 public class MonacoViewController: ViewController, WKUIDelegate, WKNavigationDelegate {
     
     var delegate: MonacoViewControllerDelegate?
-    var webView: MonacoWebView!
+    var monacoWebView: MonacoWebView!
+    
     var options: SwiftyMonaco.Options
     
     init( options: SwiftyMonaco.Options ) {
@@ -314,26 +357,25 @@ public class MonacoViewController: ViewController, WKUIDelegate, WKNavigationDel
             result["fontSize"] = newOptions.fontSize
             options.fontSize = newOptions.fontSize
         }
-        if newOptions.fontSize != options.fontSize {
-            result["fontSize"] = newOptions.fontSize
-            options.fontSize = newOptions.fontSize
-        }
         if newOptions.lineNumbers != options.lineNumbers {
             result["lineNumbers"] = newOptions.lineNumbers.jsValue
             options.lineNumbers = newOptions.lineNumbers
         }
 
-        webView.updateOptions(result)
+        monacoWebView.updateOptions(result)
     }
     
     
     public override func loadView() {
+        
         let webConfiguration = WKWebViewConfiguration()
         webConfiguration.userContentController.add(UpdateTextScriptHandler(self), name: "updateText")
-        webView = MonacoWebView(frame: .zero, configuration: webConfiguration)
-        webView.uiDelegate = self
-        webView.navigationDelegate = self
-        view = webView
+        monacoWebView = MonacoWebView(frame: .zero, configuration: webConfiguration)
+        monacoWebView.uiDelegate = self
+        monacoWebView.navigationDelegate = self
+        
+        view = monacoWebView
+        
         #if os(macOS)
         DistributedNotificationCenter.default.addObserver(self, selector: #selector(interfaceModeChanged(sender:)), name: NSNotification.Name(rawValue: "AppleInterfaceThemeChangedNotification"), object: nil)
         #endif
@@ -342,10 +384,15 @@ public class MonacoViewController: ViewController, WKUIDelegate, WKNavigationDel
     public override func viewDidLoad() {
         super.viewDidLoad()
         
-        webView.loadMonaco()
-        
+        monacoWebView.loadMonaco()
     }
     
+//    public override func viewDidAppear(_ animated: Bool) {
+//        super.viewDidAppear(animated)
+//    }
+//    public override func viewWillDisappear(_ animated: Bool) {
+//        super.viewWillDisappear(animated)
+//    }
 //    deinit {
 //    }
     
@@ -357,7 +404,7 @@ public class MonacoViewController: ViewController, WKUIDelegate, WKNavigationDel
     public override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
         if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
-            webView.setTheme( options.theme, for: traitCollection.userInterfaceStyle )
+            monacoWebView.setTheme( options.theme, for: traitCollection.userInterfaceStyle )
         }
         
     }
@@ -367,7 +414,7 @@ public class MonacoViewController: ViewController, WKUIDelegate, WKNavigationDel
     // MARK: - WKWebView
     public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         
-        self.webView.initMonaco( text: self.delegate?.monacoView(readText: self) ?? "",
+        self.monacoWebView.initMonaco( text: self.delegate?.monacoView(readText: self) ?? "",
                                  options: options,
                                  for: traitCollection.userInterfaceStyle  )
 

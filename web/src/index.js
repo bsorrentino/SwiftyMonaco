@@ -38,6 +38,14 @@ import './styles.css';
             this.contextKeys[key] = contextKey;
         }
 
+        hasTextFocus() {
+            return this.editor.hasTextFocus()
+        }
+
+        hasFocus() {
+            this.editor.hasFocus();
+        }
+
         focus() {
             this.editor.focus();
         }

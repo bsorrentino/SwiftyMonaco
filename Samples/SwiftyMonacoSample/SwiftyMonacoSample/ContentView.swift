@@ -22,6 +22,7 @@ flowchart LR
     var options:SwiftyMonaco.Options {
         SwiftyMonaco.Options(
             syntax: .mermaid,
+            minimap: false,
             scrollbar: false,
             fontSize: fontSize,
             theme: "mermaid",
@@ -36,8 +37,8 @@ flowchart LR
                 Divider()
                 SwiftyMonaco(text: $text,
                              options: options )
-                Divider()
-                Text( text )
+//                Divider()
+//                Text( text )
             }
             .toolbar{
                 
@@ -51,6 +52,17 @@ flowchart LR
                     Button { lineNumbers.toggle() } label: {
                         Text("line numbers")
                     }
+                }
+                ToolbarItem(placement: .topBarLeading ) {
+                    NavigationLink(  destination: {
+                        Text( "Preview" )
+                    }) {
+                        Label( "Preview >", systemImage: "photo.fill" )
+                            .labelStyle(.titleOnly)
+                            .foregroundColor( .blue )
+                    }
+                    .accessibilityIdentifier("diagram_preview")
+                    .padding(.leading, 15)
                 }
             }
         }
