@@ -9,7 +9,13 @@ import SwiftUI
 import SwiftyMonaco
 
 struct ContentView: View {
-    @State var text: String = ""
+    @State var text: String = 
+"""
+flowchart LR
+    Start --> Stop
+    Subgraph element
+        C ==> D
+"""
     @State var fontSize:Int = 20
     @State var lineNumbers:Bool = true
 
