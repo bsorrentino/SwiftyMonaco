@@ -117,25 +117,24 @@ class MonacoWebView : WKWebView {
             language = "language: '\(syntax.title)',"
         }
         
-        // Minimap
-        let minimap = "minimap: { enabled: \(options.minimap) }"
+        // [Options](https://microsoft.github.io/monaco-editor/typedoc/interfaces/editor.IEditorOptions.html)
+        let monacoOptions = """
+        theme: "\(detectTheme( for: userInterfaceStyle, defaultTheme: options.theme ))",
+        minimap: { enabled: \(options.minimap) },
+        scrollbar: { vertical: "\(options.scrollbar.jsValue)" },
+        cursorSmoothCaretAnimation: \(options.smoothCursor),
+        cursorBlinking: "\(options.cursorBlink)",
+        fontSize: \(options.fontSize),
+        lineNumbers: "\(options.lineNumbers.jsValue)",
+        contextmenu: false,
+        dragAndDrop: false,
+        glyphMargin: false,
+        automaticLayout: true,
+        folding: false,
+        showFoldingControls: "never"
+        """
         
-        // Scrollbar
-        let scrollbar = "scrollbar: { vertical: \"\(options.scrollbar.jsValue)\" }"
-        // Smooth Cursor
-        let smoothCursor = "cursorSmoothCaretAnimation: \(options.smoothCursor)"
-        
-        // Cursor Blinking
-        let cursorBlink = "cursorBlinking: \"\(options.cursorBlink)\""
-        
-        // Font size
-        let fontSize = "fontSize: \(options.fontSize)"
-        
-        // Line Numbers
-        let lineNumbers = "lineNumbers: \"\(options.lineNumbers.jsValue)\""
-        
-        let theme = detectTheme( for: userInterfaceStyle, defaultTheme: options.theme )
-        
+
         // Code itself
         let b64 = text.data(using: .utf8)?.base64EncodedString()
         let javascript =
@@ -145,15 +144,8 @@ class MonacoWebView : WKWebView {
 
             editor.create({
                 value: atob('\(b64 ?? "")'),
-                automaticLayout: true,
-                theme: "\(theme)",
                 \(language ?? "")
-                \(minimap),
-                \(scrollbar),
-                \(smoothCursor),
-                \(cursorBlink),
-                \(fontSize),
-                \(lineNumbers)
+                \(monacoOptions)
             });
             //let meta = document.createElement('meta');
             //meta.setAttribute('name', 'viewport');
